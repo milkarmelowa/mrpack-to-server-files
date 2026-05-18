@@ -1,16 +1,20 @@
 import zipfile
 import json
-from os import listdir
+import os
 import re
+import shutil
 def main():
     pack_chosen = choose_menu()
     # pack_chosen = 'VR Survival.mrpack' # for debugging
     result = make_lists(get_json_file(pack_chosen))
-    print(list(result.values()))
+    for i in list(result.keys()):
+        print(i)
+    print('\n----------------------------------------\n')
+    choose_method(result)
 
 def choose_menu():
     mrpack_form = re.compile(".*\\.mrpack")
-    dir_list = listdir('.')
+    dir_list = os.listdir('.')
     list_mrpack = list(filter(mrpack_form.match, dir_list))
     if list_mrpack==[]:
         print("No .mrpack files found, place the file in the same directory as the script")
@@ -58,23 +62,39 @@ def make_lists(file):
             file_required = True
         else:
             file_required = False
-        required_only_with_links[mod_file] = file['files'][n]['downloads']
+        if file_required:
+            required_only_with_links[mod_file] = file['files'][n]['downloads']
         n+=1
     return required_only_with_links
 
 def choose_method(result):
     choice = ''
     while choice != '1' and choice != '2':
-        choice = input('Make modlist locally [1]\nDownload modlist from Modrinth [2]')
+        choice = input('Make modlist locally [1]\nDownload modlist from Modrinth [2]\nSelection: ')
     if choice == '1':
         make_local(list(result.keys()))
-        return 'Local complete'
+        return None
     elif choice == '2':
         make_download(list(result.values()))
-        return 'Download complete'
-    return 'Done'
+        return None
+    return None
 
 def make_local(modlist):
+    non_exist_files=[] # list of missing files
+    for filepath in modlist:
+        if not os.path.isfile(filepath):
+            non_exist_files.append(filepath)
+    # If missing any files
+    # TODO add partial download
+    if len(non_exist_files) > 0:
+        print('\nMissing files:')
+        for i in non_exist_files:
+            print(i)
+        return None
+    # No missing files
+    os.makedirs('./server/mods')
+    for filepath in modlist:
+        shutil.copy(filepath, './server/mods')
     return None
 
 def make_download(modlist):
