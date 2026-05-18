@@ -3,17 +3,17 @@ import json
 from os import listdir
 import re
 def main():
-    # pack_chosen = choose_menu()
-    pack_chosen = '1.20.1.mrpack' # for debugging
+    pack_chosen = choose_menu()
+    # pack_chosen = 'VR Survival.mrpack' # for debugging
     result = make_lists(get_json_file(pack_chosen))
     print(list(result.values()))
 
 def choose_menu():
     mrpack_form = re.compile(".*\\.mrpack")
-    dir_list = listdir()
+    dir_list = listdir('.')
     list_mrpack = list(filter(mrpack_form.match, dir_list))
     if list_mrpack==[]:
-        print("No .mrpack files found")
+        print("No .mrpack files found, place the file in the same directory as the script")
     else:
         running = True
         while running:
